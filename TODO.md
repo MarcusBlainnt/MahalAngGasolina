@@ -1,43 +1,33 @@
-# Node.js Fuel System Transformation - Detailed Implementation Plan
+# PostgreSQL + Render Deployment TODO
 
-## Approved Plan Overview
-Transform existing partial Node.js app to match exact SQL schema (fuelsystem_db). Implement full flow: RIVs → Items → Trip Tickets → Logs → Reports.
+## Plan Overview
+Prepare Node.js/Express app for Render deployment using provided PostgreSQL DB:
+- Switch from MySQL (InfinityFree) to PostgreSQL via DATABASE_URL
+- Use `pg` driver, parse env URL
+- Adapt schema/queries for Postgres
+- Cleanup legacy SQLite/MySQL migration files
+- Update package.json, test, deploy instructions
 
-**Current Status:** ✅ Plan approved. Starting implementation.
+## Steps (Mark [x] when done)
 
-## Breakdown Steps (Complete sequentially):
+### Phase 1: Dependencies & Cleanup
+- [x] Step 1: Update package.json (add pg, remove sqlite3)
+- [x] Step 2: Delete legacy files (fuel_system.db, scripts/migrate.js, models/database.js.backup)
 
-### Phase 1: Database Schema (Priority 1)
-1. [✅] **Update models/database.js**: Replace init() with exact SQL schema (all 8 tables + indexes/FKs). Add sample data inserts matching SQL dump. Ensure MySQL compatible (InnoDB, utf8mb4_unicode_ci).
-2. [✅] **Test DB**: Execute `node -e "require('./models/database').init().then(() => { console.log('✅ DB Ready - Schema created with samples'); process.exit(0); }).catch(e => { console.error('❌ Error:', e); process.exit(1); })"` → Verify tables/data.
+### Phase 2: Database Layer
+- [x] Step 3: Rewrite models/database.js for PostgreSQL (parse DATABASE_URL, pg.Pool, adapt schema/queries)
+- [ ] Step 4: Test db.init() locally (requires local Postgres + DATABASE_URL env)
 
-### Phase 2: Core Models & Helpers
-3. [✅] **Create model helpers**: Add functions in database.js for CRUD per table (getRIVs, createTripTicket, etc.).
-4. [✅] **Update server.js**: Ensure db.init() called on start.
+### Phase 3: App Updates & Testing
+- [ ] Step 5: Minor server.js updates (error handling)
+- [ ] Step 6: Update scripts/seed.js if needed
+- [ ] Step 7: `npm install`, test locally (`npm start`, check login/dashboard)
 
-### Phase 3: Routes & API (Rewrite fuel.js)
-5. [✅] **routes/fuel.js rewrite**:
-   - GET/POST /fuel-rivs (with nested items)
-   - GET/POST /vehicles, /drivers, /officials
-   - GET/POST /trip-tickets (link to RIV)
-   - GET/POST /trip-logs (calculations: excess = issued + outside - used)
-   - GET /reports?driver=...&month=...&year=...
-6. [✅] **Dashboard updates**: Overview stats, pending tickets/logs.
+### Phase 4: Deployment Prep
+- [ ] Step 8: Update README.md with Render deploy instructions
+- [ ] Step 9: Full test on Render (deploy, seed data, verify CRUD/reports)
 
-**Next Step:** Proceed to Phase 4.
+**Current Progress: Ready for Step 1**
 
-### Phase 4: Views/UI
-7. [✅] **Update existing views**: index.ejs (dashboard), tickets.ejs → trip-tickets.ejs, riv.ejs → fuel-rivs.ejs.
-8. [✅] **New views**: vehicles.ejs, drivers.ejs, officials.ejs, trip-logs.ejs, reports.ejs.
-9. [✅] **Forms**: RIV items table (fuel types), log calc fields, dropdowns (vehicles/drivers).
+**Next Action: npm install after deps update**
 
-### Phase 5: Polish & Test
-10. [x] **Print CSS**: Update style.css for all printables.
-11. [x] **Auth/Validation**: Role checks, input validation.
-12. [x] **Seed & Test**: Full sample data, end-to-end flow, reports.
-13. [x] **attempt_completion**: Demo commands.
-
-## Progress Tracking
-- Complete each step → Update checklist with [x].
-- After each phase → Test `npm start`, manual verification.
-- Total: 13 steps.
