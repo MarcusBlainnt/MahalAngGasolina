@@ -2,10 +2,10 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '', // Update if you have a password
-  database: 'fuelsystem_db',
+  host: 'sql107.epizy.com',
+  user: 'if0_41301343',
+  password: 'M4rryy0u', // Update if you have a password
+  database: 'if0_41301343_fuel_system',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -653,6 +653,36 @@ async function getDriversForVehicleInMonth(month, year, plateNumber) {
     return rows;
 }
 
+async function getFuelConsumptionReportData(month, year) {
+    const db = await getDB();
+    const query = `
+        SELECT
+            v.type AS type_of_vehicle,
+            tt.plate_number,
+            v.num_of_cylinder,
+            v.normal_km_per_liter,
+            MIN(tl.odo_beginning) AS odo_beginning,
+            MAX(tl.odo_ending) AS odo_ending,
+            SUM(tl.total_distance) AS total_distance,
+            SUM(tl.gasoline_used) AS total_fuel_used
+        FROM
+            trip_tickets tt
+        JOIN
+            trip_logs tl ON tt.id = tl.trip_ticket_id
+        JOIN
+            vehicles v ON tt.plate_number = v.plate_number
+        WHERE
+            MONTH(tl.dep_time) = ? AND YEAR(tl.dep_time) = ?
+            AND tl.total_distance > 0 AND tl.gasoline_used > 0
+        GROUP BY
+            tt.plate_number, v.type, v.num_of_cylinder, v.normal_km_per_liter
+        ORDER BY
+            tt.plate_number;
+    `;
+    const [rows] = await db.query(query, [month, year]);
+    return rows;
+}
+
 module.exports = {
   init,
   getDB,
@@ -709,5 +739,6 @@ module.exports = {
   getNextRivNumber,
   getSummaryDataForMonth,
   getMonthlyTravelData,
-  getDriversForVehicleInMonth
+  getDriversForVehicleInMonth,
+  getFuelConsumptionReportData
 };

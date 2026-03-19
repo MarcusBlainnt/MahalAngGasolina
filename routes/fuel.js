@@ -191,12 +191,17 @@ const crudRoutes = [
     { path: 'vehicles', getAll: db.getAllVehicles, create: db.createVehicle, update: db.updateVehicle, delete: db.deleteVehicle },
     { path: 'drivers', getAll: db.getAllDrivers, create: db.createDriver, update: db.updateDriver, delete: db.deleteDriver },
     { path: 'officials', getAll: db.getAllOfficials, create: db.createOfficial, update: db.updateOfficial, delete: db.deleteOfficial },
-    { path: 'users', getAll: db.getAllUsers, create: db.createUser, update: db.updateUser, delete: db.deleteUser }
+    { path: 'users', getAll: db.getAllUsers, create: db.createUser, update: db.updateUser, delete: db.deleteUser, adminOnly: true }
 ];
 
 crudRoutes.forEach(route => {
+    const getMiddlewares = [];
+    if (route.adminOnly) {
+        getMiddlewares.push(isAdmin);
+    }
+
     // GET list
-    router.get(`/${route.path}`, async (req, res) => {
+    router.get(`/${route.path}`, ...getMiddlewares, async (req, res) => {
         try {
             const items = await route.getAll();
             res.render(route.path, { title: route.path.charAt(0).toUpperCase() + route.path.slice(1), items, user: req.session.user });
@@ -470,5 +475,50 @@ router.get('/print/monthly-travel', async (req, res) => {
     }
 });
 
+
+router.get('/print/fuel-consumption', async (req, res) => {
+    try {
+        const month = req.query.month || new Date().getMonth() + 1;
+        const year = req.query.year || new Date().getFullYear();
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthName = monthNames[month - 1];
+
+        const rawData = await db.getFuelConsumptionReportData(month, year);
+
+        const grandTotals = {
+            total_distance: 0,
+            total_fuel_used: 0,
+        };
+
+        const reportData = rawData.map(data => {
+            const total_distance = parseFloat(data.total_distance) || 0;
+            const total_fuel_used = parseFloat(data.total_fuel_used) || 0;
+            const normal_km_per_liter = parseFloat(data.normal_km_per_liter) || 0;
+
+            const distance_per_liter = total_fuel_used > 0 ? total_distance / total_fuel_used : 0;
+            const total_liters_allowance = normal_km_per_liter > 0 ? (total_distance / normal_km_per_liter) * 1.1 : 0;
+            const excess = total_fuel_used - total_liters_allowance;
+
+            grandTotals.total_distance += total_distance;
+            grandTotals.total_fuel_used += total_fuel_used;
+
+            return {
+                ...data,
+                total_distance,
+                total_fuel_used,
+                distance_per_liter,
+                total_liters_allowance,
+                excess: excess > 0 ? excess : 0, // Only show positive excess
+                remarks: excess < 0 ? `Saved ${Math.abs(excess).toFixed(2)} L` : ''
+            };
+        });
+
+        res.render('print_fuel_consumption', { monthName, year, reportData, grandTotals });
+    } catch (err) {
+        console.error("Error generating fuel consumption report:", err);
+        res.status(500).send(err.message);
+    }
+});
 
 module.exports = router;

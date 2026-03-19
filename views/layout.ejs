@@ -31,7 +31,9 @@
           <a href="/vehicles" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-car mr-1"></i>Vehicles</a>
           <a href="/drivers" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-id-card mr-1"></i>Drivers</a>
           <a href="/officials" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-user-tie mr-1"></i>Officials</a>
+          <% if (user && user.role === 'admin') { %>
           <a href="/users" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-users mr-1"></i>Users</a>
+          <% } %>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-600">Welcome, <%= user.name %> (<%= user.role %>)</span>
             <a href="/logout" class="bg-cao-gold text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 transition flex items-center">

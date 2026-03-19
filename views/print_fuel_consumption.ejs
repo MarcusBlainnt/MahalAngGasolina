@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report of Fuel Consumption</title>
+    <style>
+        @media print {
+            @page { size: landscape; margin: 0.3in; }
+            .no-print { display: none; }
+            body {
+                margin: 0;
+                background: white;
+            }
+            .page {
+                width: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            margin: 0;
+            color: #000;
+            background-color: #e0e0e0;
+        }
+
+        .page {
+            background: white;
+            display: block;
+            margin: 20px auto;
+            padding: 0.5in;
+            box-shadow: 0 0 0.5cm rgba(0,0,0,0.2);
+            width: 29.7cm;
+            min-height: 21cm;
+            box-sizing: border-box;
+        }
+
+        .header-img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .report-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .line-input {
+            border-bottom: 1px solid black;
+            display: inline-block;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .main-table th, .main-table td {
+            border: 1px solid black;
+            text-align: center;
+            padding: 3px;
+            word-wrap: break-word;
+        }
+
+        .main-table th {
+            background-color: #fff;
+            font-size: 9px;
+            height: 40px;
+        }
+
+        .sub-head { font-size: 8px; font-weight: normal; }
+
+        .footer-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sig-box { width: 45%; }
+        
+        .sig-line {
+            margin-top: 25px;
+            border-bottom: 1px solid black;
+            width: 200px;
+        }
+
+        .info-row { margin-bottom: 5px; }
+        .label { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <% if(typeof monthName !== 'undefined' && monthName) { %>
+
+    <div class="no-print" style="position: fixed; top: 10px; right: 10px;">
+        <button onclick="window.print()" style="padding: 10px 20px;">Print Report</button>
+    </div>
+    <div class="page">
+    <img src="/images/header.png" class="header-img" alt="Report Header">
+
+    <div class="report-header">
+        REPORT OF FUEL CONSUMPTION FOR THE MONTH OF <span class="line-input"><%= monthName ?? '' %> <%= year ?? '' %></span>
+    </div>
+
+    <table class="main-table">
+        <thead>
+            <tr>
+                <th rowspan="2" style="width: 7%;">Type of Vehicle</th>
+                <th rowspan="2" style="width: 7%;">Plate Number</th>
+                <th rowspan="2" style="width: 5%;">Number of Cylinder</th>
+                <th colspan="2">Odometer Reading</th>
+                <th style="width: 6%;">Total Distance</th>
+                <th style="width: 6%;">Total Fuel Used</th>
+                <th style="width: 8%;">Distance Travelled per Liter</th>
+                <th style="width: 8%;">Normal Travel Km. per Liter</th>
+                <th style="width: 9%;">Total Liters Consumed Plus 10% Allowance</th>
+                <th style="width: 8%;">Excess</th>
+                <th rowspan="2">Remarks</th>
+            </tr>
+            <tr>
+                <th style="width: 6%;">Beginning</th>
+                <th style="width: 6%;">Ending</th>
+                <th>A</th>
+                <th>B</th>
+                <th>C=(A÷B)</th>
+                <th>D</th>
+                <th>E=(A÷D)(1.1)</th>
+                <th>F=(B-E)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (reportData && reportData.length > 0) { %>
+                <% reportData.forEach(data => { %>
+                <tr>
+                    <td><%= data.type_of_vehicle ?? '' %></td>
+                    <td><%= data.plate_number ?? '' %></td>
+                    <td><%= data.num_of_cylinder ?? '' %></td>
+                    <td><%= data.odo_beginning ? parseFloat(data.odo_beginning).toLocaleString('en-US') : '' %></td>
+                    <td><%= data.odo_ending ? parseFloat(data.odo_ending).toLocaleString('en-US') : '' %></td>
+                    <td><%= (data.total_distance ?? 0) > 0 ? parseFloat(data.total_distance).toFixed(2) : '' %></td>
+                    <td><%= (data.total_fuel_used ?? 0) > 0 ? parseFloat(data.total_fuel_used).toFixed(2) : '' %></td>
+                    <td><%= (data.distance_per_liter ?? 0) > 0 ? parseFloat(data.distance_per_liter).toFixed(2) : '' %></td>
+                    <td><%= (data.normal_km_per_liter ?? 0) > 0 ? parseFloat(data.normal_km_per_liter).toFixed(2) : '' %></td>
+                    <td><%= (data.total_liters_allowance ?? 0) > 0 ? parseFloat(data.total_liters_allowance).toFixed(2) : '' %></td>
+                    <td><%= (data.excess ?? 0) > 0 ? parseFloat(data.excess).toFixed(2) : '' %></td>
+                    <td><%= data.remarks ?? '' %></td>
+                </tr>
+                <% }); %>
+            <% } else { %>
+                <% for (let i = 0; i < 15; i++) { %>
+                    <tr>
+                        <% for (let j = 0; j < 12; j++) { %>
+                            <td>&nbsp;</td>
+                        <% } %>
+                    </tr>
+                <% } %>
+            <% } %>
+        </tbody>
+        <tfoot>
+            <tr style="font-weight: bold;">
+                <td colspan="5" style="text-align: right; padding-right: 10px;">TOTALS:</td>
+                <td><%= (grandTotals['total_distance'] ?? 0) > 0 ? parseFloat(grandTotals['total_distance']).toFixed(2) : '' %></td>
+                <td><%= (grandTotals['total_fuel_used'] ?? 0) > 0 ? parseFloat(grandTotals['total_fuel_used']).toFixed(2) : '' %></td>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer-section">
+        <div class="sig-box">
+            <p class="label">Prepared By:</p>
+            <div class="info-row">Name: <span class="line-input"></span></div>
+            <div class="info-row">Position: <span class="line-input"></span></div>
+        </div>
+        <div class="sig-box">
+            <p class="label">Verified and Found Correct: (Head, Auditing Unit)</p>
+            <div class="info-row">Name: <span class="line-input"></span></div>
+            <div class="info-row">Position: <span class="line-input"></span></div>
+        </div>
+    </div>
+    </div>
+
+    <% } else { %>
+    <div class="page">
+        <p style="text-align: center; font-size: 16px; font-weight: bold; margin-top: 50px;">No report data available for the selected month and year.</p>
+        <p style="text-align: center;">Please close this window and try generating the report for a different period.</p>
+    </div>
+    <% } %>
+
+</body>
+</html>
