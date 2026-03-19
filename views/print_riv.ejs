@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RIV Form - Printable</title>
+    <style>
+        @page { size: A4; margin: 10mm; }
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background: #525659; }
+        
+        /* Paper setup */
+        .sheet {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Header Image Area */
+        .header-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 18pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 20px 0;
+            letter-spacing: 1px;
+        }
+
+        /* Editable Fields */
+        input {
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            background: transparent;
+        }
+        input:focus { outline: none; background: #fffde7; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 6px; font-size: 10pt; }
+        th { background: #f2f2f2; font-weight: bold; }
+
+        .info-table td { width: 25%; }
+        .label { font-weight: bold; }
+
+        /* Main Grid */
+        .main-table th { font-size: 9pt; height: 10px; text-align: center; }
+        .main-table td { height: 10px; text-align: center; }
+        .desc-cell { text-align: left; padding-left: 10px; width: 35%; }
+
+        /* Footer / Signatures */
+        .footer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .certify { font-size: 10pt; margin-bottom: 15px; line-height: 1.3; }
+        .sig-block { margin-top: 35px; text-align: center; }
+        .name-line { border-bottom: 1.5px solid black; font-weight: bold; padding-bottom: 2px; text-transform: uppercase; }
+        .sub-label { font-size: 8pt; margin-top: 4px; }
+
+        /* Print controls */
+        .no-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .btn {
+            background: #27ae60; color: white; border: none; padding: 12px 24px;
+            border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;
+        }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .sheet { box-shadow: none; margin: 0; width: 100%; padding: 0; }
+            .no-print { display: none; }
+            input { background: transparent !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print mt-6 flex justify-end gap-4" style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+        <a href="/fuel-rivs" style="background-color: #e5e7eb; color: #1f2937; font-weight: bold; padding: 0.5rem 1rem; border-radius: 0.25rem; text-decoration: none;">Back to RIVs</a>
+        <button onclick="window.print()" class="btn" style="background-color: #D4AF37;">
+            <i class="fas fa-print mr-2"></i>Print
+        </button>
+    </div>
+
+    <div class="sheet">
+        <img src="/images/header.png" alt="Header" class="header-img">
+
+        <div class="title">Requisition and Issue Voucher</div>
+
+        <table class="info-table">
+            <tr>
+                <td class="label">Plate No.:</td>
+                <!-- Assuming plate number comes from the first associated trip ticket or passed directly -->
+                <td><input type="text" value="<%= (typeof plate_number !== 'undefined' ? plate_number : '') %>"></td>
+                <td class="label">Number:</td>
+                <td><input type="text" value="<%= riv.riv_no %>"></td>
+            </tr>
+            <tr>
+                <td class="label">Office:</td>
+                <td><input type="text" value="<%= riv.office %>" placeholder="Office"></td>
+                <td class="label">Date:</td>
+                <td><input type="text" value="<%= new Date(riv.date).toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) %>"></td>
+            </tr>
+        </table>
+
+        <table class="main-table" style="margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th colspan="3">REQUISITION</th>
+                    <th colspan="4">AS ISSUED</th>
+                </tr>
+                <tr>
+                    <th width="10%">QUANTITY</th>
+                    <th width="10%">UNIT</th>
+                    <th class="desc-cell">DESCRIPTION</th>
+                    <th width="10%">QUANTITY</th>
+                    <th width="12%">UNIT PRICE</th>
+                    <th width="12%">TOTAL</th>
+                    <th>ACCOUNT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% riv.items.forEach(function(item) { %>
+                <tr>
+                    <td><input type="text" value="<%= item.quantity_liters %>" style="text-align:center"></td>
+                    <td><input type="text" value="Liters" style="text-align:center"></td>
+                    <td class="desc-cell"><input type="text" value="<%= item.fuel_type %>"></td>
+                    <td><input type="text"></td>
+                    <td><input type="text"></td>
+                    <td><input type="text"></td>
+                    <td><input type="text"></td>
+                </tr>
+                <% }); %>
+                <% for(let i = 0; i < Math.max(0, 4 - riv.items.length); i++) { %>
+                <tr><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td></tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <div class="footer-container">
+            <div>
+                <p class="certify">I certify that supplies requisitioned are necessary and will be used solely for the purpose stated.</p>
+                
+                <div class="sig-block">
+                    <div class="name-line"><input type="text" value="<%= officialsByPosition['requisitioning_officer'] ? officialsByPosition['requisitioning_officer'].name : '' %>" style="text-align:center"></div>
+                    <div class="sub-label" style="text-align:center">(Requistioning Officer)</div>
+                    <div class="name-line"><input type="text" value="<%= officialsByPosition['requisitioning_officer'] ? officialsByPosition['requisitioning_officer'].title : '' %>" style="text-align:center"></div>
+                    <div class="sub-label" style="text-align:center">(Title)</div>
+                </div>
+
+                <div class="sig-block" style="text-align: left; margin-top: 50px;">
+                    <span class="label">APPROVED:</span>
+                    <div class="name-line" style="margin-top: 20px;"><input type="text" value="<%= officialsByPosition['city_accountant'] ? officialsByPosition['city_accountant'].name : '' %>" style="text-align:center"></div>
+                    <div class="sub-label" style="text-align:center">(Signature above printed name)</div>
+                    <div class="sub-label" style="text-align:center"><%= officialsByPosition['city_accountant'] ? officialsByPosition['city_accountant'].position : 'City Accountant' %></div>
+                </div>
+            </div>
+
+            <div>
+                <p class="certify">Received the supplies shown above as issued:</p>
+                
+                <div class="sig-block">
+                    <div class="name-line" style="height: 20px;"></div>
+                    <div class="sub-label">(Signature of person receiving supplies)</div>
+                    <div class="name-line" style="height: 20px; margin-top: 25px;"></div>
+                    <div class="sub-label">(Designation)</div>
+                </div>
+
+                <div style="margin-top: 40px; font-size: 10pt; line-height: 2;">
+                    Filled by: _________________________<br>
+                    Shipped to: _______________________<br>
+                    <div style="text-align: right;">Date: ____________</div>
+                </div>
+
+                <div class="sig-block">
+                    <div class="name-line"><input type="text" value="<%= officialsByPosition['gas_station_officer'] ? officialsByPosition['gas_station_officer'].name : '' %>" style="text-align:center"></div>
+                    <div class="sub-label">(Signature of Gas Station Officer)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

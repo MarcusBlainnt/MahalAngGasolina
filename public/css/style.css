@@ -1,0 +1,77 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.print-section {
+  background: white;
+  padding: 20px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+  }
+  
+  .print-section {
+    box-shadow: none;
+    border: none;
+    margin: 0;
+  }
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+/* Dashboard glass panels */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 45px rgba(0,0,0,0.1);
+}
+
+/* Table styles */
+table thead {
+  background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+}
+tbody tr:hover {
+  background: rgba(253, 230, 138, 0.3);
+}
+.bg-yellow-100 { background-color: #fef3c7; }
+.text-yellow-800 { color: #92400e; }
+.bg-gray-100 { background-color: #f3f4f6; }
+
+/* Badges */
+.rounded-full { border-radius: 9999px; }
+
+/* Custom gold hover */
+.bg-cao-gold { background-color: #D4AF37; }
+.bg-cao-gold:hover { background-color: #B8860B; }
+
+/* Modal backdrop */
+.modal-backdrop { background: rgba(0,0,0,0.5); }
+
+/* Form styles */
+input[type="number"], input[type="text"], input[type="date"], textarea, select {
+  transition: all 0.2s;
+}
+input:focus {
+  outline: 2px solid #eab308;
+  border-color: #eab308;
+}
+
+/* Print hide modal */
+@media print {
+  .modal-backdrop, #tripRivModal { display: none !important; }
+}

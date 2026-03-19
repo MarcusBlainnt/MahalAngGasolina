@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CAO Fuel System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(254,252,232,0.95) 100%), 
+                        url('/images/Malaybalay-City-Logo4.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        .cao-gold { color: #D4AF37; }
+        .bg-cao-gold { background-color: #D4AF37; }
+        .bg-cao-gold:hover { background-color: #B8860B; }
+        .focus\\:ring-cao-gold:focus { --tw-ring-color: #D4AF37; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 md:p-8">
+
+
+    <div class="w-full max-w-4xl mx-auto flex flex-col lg:flex-row glass-panel rounded-3xl overflow-hidden shadow-2xl">
+
+
+        
+        <div class="lg:w-1/2 p-10 flex flex-col justify-center items-center text-center border-b lg:border-b-0 lg:border-r border-gray-100">
+
+            <img src="/images/ACCOUNTANT-300x135-1.png" alt="CAO Logo" class="w-32 mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 tracking-tight">
+                CITY ACCOUNTANT'S OFFICE
+            </h1>
+            <p class="text-cao-gold font-semibold text-sm mb-4 tracking-widest uppercase">
+                Fuel System
+            </p>
+            <div class="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                <i class="fas fa-shield-halved text-cao-gold text-2xl mb-2"></i>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    This is a <span class="font-bold">Restricted Access</span> portal for authorized personnel of the City Government of Malaybalay only. Unauthorized access is strictly prohibited.
+                </p>
+            </div>
+        </div>
+
+        <div class="lg:w-1/2 p-10 bg-white/50">
+
+            <h2 class="text-xl font-bold text-gray-700 mb-8">Secure Employee Login</h2>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+            <div class="mb-5 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                <span class="text-red-700 text-sm"><%= error %></span>
+            </div>
+            <% } %>
+            
+            <form action="/login" method="POST" class="space-y-5">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Email Address</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" name="email" value="<%= typeof oldEmail !== 'undefined' ? oldEmail : '' %>" placeholder="Enter your email" 
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-cao-gold focus:border-transparent outline-none transition" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password" placeholder="••••••••" 
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-cao-gold focus:border-transparent outline-none transition" required>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs">
+                    <label class="flex items-center text-gray-500">
+                        <input type="checkbox" name="remember" class="rounded text-cao-gold mr-2"> Remember me
+                    </label>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-cao-gold text-white font-bold py-3 rounded-xl shadow-lg shadow-yellow-700/20 transform transition active:scale-[0.98]">
+                    <i class="fas fa-sign-in-alt mr-2"></i>LOGIN TO PORTAL
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 text-center text-gray-600 text-xs w-full">
+        <p>Official Contact: cacco.malaybalay@gmail.com | 0969-208-8264</p>
+    </div>
+
+</body>
+</html>

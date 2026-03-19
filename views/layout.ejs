@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title != 'undefined' ? title : 'Fuel System' %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/print.css">
+  <style>
+    .cao-gold { color: #D4AF37; }
+    .bg-cao-gold { background-color: #D4AF37; }
+    .bg-cao-gold:hover { background-color: #B8860B; }
+    [x-cloak] { display: none !important; }
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+  <% if (typeof user !== 'undefined') { %>
+  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center py-4">
+        <a href="/" class="text-2xl font-bold text-gray-800 tracking-tight">
+          <i class="fas fa-gas-pump mr-2 text-cao-gold"></i>
+          CAO Fuel System
+        </a>
+        <div class="flex items-center space-x-6">
+          <a href="/dashboard" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-chart-simple mr-1"></i>Dashboard</a>
+          <a href="/trip-tickets" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-list mr-1"></i>Tickets</a>
+          <a href="/reports" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-chart-bar mr-1"></i>Reports</a>
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-600">Welcome, <%= user.name %> (<%= user.role %>)</span>
+            <a href="/logout" class="bg-cao-gold text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 transition flex items-center">
+              <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% } %>
+  <div class="container mx-auto px-4 mt-4">
+    <%- body %>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

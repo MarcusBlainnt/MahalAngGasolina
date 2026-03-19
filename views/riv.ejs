@@ -1,0 +1,51 @@
+<div class="py-10">
+  <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div id="printArea">
+      <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-gray-100">
+          <h1 class="text-2xl font-bold text-gray-800">RIV #<%= riv.riv_no %></h1>
+          <p class="text-sm text-gray-500">Date: <%= new Date(riv.date).toLocaleDateString() %></p>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p><strong>Office:</strong> <%= riv.office %></p>
+              <p><strong>Status:</strong> <%= riv.status %></p>
+            </div>
+          </div>
+          
+          <h2 class="text-xl font-bold text-gray-800 mt-6 mb-4">Fuel Items</h2>
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuel Type</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity (Liters)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <% if (riv.items && riv.items.length > 0) { %>
+                <% riv.items.forEach(function(item) { %>
+                  <tr class="hover:bg-yellow-50/50 transition">
+                    <td class="px-4 py-4 whitespace-nowrap"><%= item.fuel_type %></td>
+                    <td class="px-4 py-4 whitespace-nowrap"><%= item.quantity_liters %></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="2" class="text-center py-4">No items found for this RIV.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 flex justify-end gap-4 no-print">
+      <a href="/fuel-rivs" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Back to RIVs</a>
+      <a href="/fuel-rivs/<%= riv.id %>/print" target="_blank" class="bg-cao-gold hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+        <i class="fas fa-print mr-2"></i>Print
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+{
+  "name": "fuel-system-app",
+  "version": "1.0.0",
+  "description": "Fuel system web app for tickets, RIV, and monthly reports",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^1.20.3",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.2.0",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.11.3",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "keywords": [
+    "fuel",
+    "system",
+    "node",
+    "express"
+  ],
+  "author": "BLACKBOXAI",
+  "license": "MIT"
+}

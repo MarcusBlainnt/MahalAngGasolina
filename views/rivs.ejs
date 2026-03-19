@@ -1,0 +1,142 @@
+<div class="py-10">
+  <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+    <div class="px-6 py-4 bg-gray-50">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <i class="fas fa-gas-pump mr-2 text-yellow-600"></i>Fuel RIV List
+        </h2>
+    </div>
+
+    <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex flex-row items-center justify-between w-full">
+                <h3 class="text-lg font-bold text-gray-800">
+                    <i class="fas fa-file-invoice text-yellow-600 mr-2"></i>Requisition and Issue Vouchers
+                </h3>
+                <div class="flex gap-2">
+                    <!-- <button onclick="document.getElementById('summaryModal').style.display='block'" class="bg-cao-gold hover:bg-yellow-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg shadow-yellow-700/20 transform transition active:scale-[0.98] inline-flex items-center">
+                        <i class="fas fa-chart-bar mr-2"></i> Monthly Summary
+                    </button> -->
+                    <button type="button" onclick="document.getElementById('rivModal').style.display='block'" class="bg-cao-gold hover:bg-yellow-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg shadow-yellow-700/20 transform transition active:scale-[0.98] inline-flex items-center">
+                        <i class="fas fa-plus mr-2"></i> New RIV
+                    </button>
+                </div>
+            </div>
+        </div>
+
+      <div class="overflow-x-auto">
+        <% if (!rivs || rivs.length === 0) { %>
+          <div class="text-center py-8">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-file-invoice text-gray-400 text-2xl"></i>
+            </div>
+            <p class="text-gray-500">No RIV records found.</p>
+          </div>
+        <% } else { %>
+            <table class="min-w-full divide-y divide-gray-100">
+              <thead class="bg-gray-50/50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RIV Number</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Office</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fuel Details</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <% rivs.forEach(function(riv) { %>
+                  <tr class="hover:bg-yellow-50/50 transition">
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <span class="text-gray-900 font-medium"><%= new Date(riv.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">
+                            <%= riv.riv_no %>
+                        </span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-gray-600"><%= riv.office %></td>
+                    <td class="px-4 py-4 text-gray-600">
+                        <!-- Display quantity/details based on available data -->
+                         <% if(riv.quantity_liters && parseFloat(riv.quantity_liters) > 0) { %>
+                            <div class="text-sm">
+                                <span class="font-medium">Total:</span> <%= parseFloat(riv.quantity_liters).toFixed(2) %> L
+                            </div>
+                         <% } else { %>
+                            <span class="text-gray-400 text-xs">View for details</span>
+                         <% } %>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="/fuel-rivs/<%= riv.id %>" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 font-medium py-1.5 px-3 rounded-lg text-xs transition inline-flex items-center">
+                          <i class="fas fa-eye mr-1"></i> View
+                        </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIV Modal -->
+<div id="rivModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display:none;">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" aria-hidden="true" onclick="document.getElementById('rivModal').style.display='none'"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <div class="relative inline-block w-full max-w-md overflow-hidden text-left align-bottom transition-all transform bg-white rounded-2xl shadow-xl sm:my-8 sm:align-middle">
+      <div class="px-6 pt-6 pb-4">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">
+        <i class="fas fa-plus-circle text-yellow-600 mr-2"></i>New RIV
+      </h3>
+    
+    <form method="POST" action="/fuel-rivs">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">RIV No.</label>
+          <input type="text" name="riv_no" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Date</label>
+          <input type="date" name="date" value="<%= new Date().toISOString().split('T')[0] %>" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Office</label>
+          <input type="text" name="office" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-2">Fuel Items (Liters)</label>
+          <div class="space-y-2 bg-yellow-50 p-4 rounded-xl">
+          <% ['Diesel', 'Regular', 'Extra'].forEach((type, index) => { %>
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-gray-600 w-16 font-medium"><%= type %></span>
+            <input type="hidden" name="items[<%= index %>][fuel_type]" value="<%= type %>">
+            <input type="number" step="0.01" name="items[<%= index %>][quantity_liters]" class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" placeholder="0.00" min="0">
+          </div>
+          <% }); %>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button" onclick="document.getElementById('rivModal').style.display='none'" class="px-5 py-2.5 border border-gray-200 rounded-xl text-gray-600 font-medium hover:bg-gray-50 transition">Cancel</button>
+        <button type="submit" class="px-5 py-2.5 bg-cao-gold hover:bg-yellow-700 text-white font-bold rounded-xl shadow-lg shadow-yellow-700/20 transition">
+          <i class="fas fa-save mr-2"></i>Create RIV
+        </button>
+      </div>
+    </form>
+    </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  window.onclick = (event) => {
+    const modal = document.getElementById('rivModal');
+    if (event.target === modal && modal.style.display === 'block') {
+        modal.style.display = 'none';
+    }
+  };
+});
+</script>

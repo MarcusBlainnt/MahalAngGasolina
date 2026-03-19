@@ -1,0 +1,81 @@
+@media print {
+    /* Page setup */
+    @page {
+        size: auto;
+        margin: 0.5cm;
+    }
+
+    /* Global resets for print */
+    body {
+        background-color: #fff !important;
+        color: #000 !important;
+        font-family: "Times New Roman", Times, serif; /* Professional serif for reports */
+        font-size: 12pt;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Hide UI elements not needed for reports */
+    nav, .navbar, .sidebar, footer, .btn, .no-print, .alert, .actions-col, .breadcrumb {
+        display: none !important;
+    }
+
+    /* Expand content to full width */
+    .container, .container-fluid, .main-content, .card, .card-body {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        float: none !important;
+    }
+
+    /* Table formatting */
+    .table-responsive {
+        overflow: visible !important;
+        display: block !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 20px;
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    th, td {
+        border: 1px solid #000 !important;
+        padding: 6px !important;
+        text-align: left;
+        font-size: 10pt;
+    }
+
+    /* Clean up links */
+    a {
+        text-decoration: none !important;
+        color: #000 !important;
+    }
+    a[href]:after {
+        content: none !important;
+    }
+
+    /* Report Signatures Section */
+    .signature-section {
+        margin-top: 50px;
+        display: flex;
+        justify-content: space-between;
+        page-break-inside: avoid;
+    }
+
+    .signature-box {
+        border-top: 1px solid #000;
+        width: 30%;
+        padding-top: 10px;
+        text-align: center;
+    }
+}

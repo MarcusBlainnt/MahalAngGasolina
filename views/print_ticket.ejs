@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Trip Ticket #<%= ticket.id %></title>
+    <style>
+        @page { size: A4; margin: 10mm; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #525659; font-size: 11px; }
+        
+        .sheet {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm;
+            margin: 0 auto;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        /* Header Image logic */
+        .header-img {
+            width: 100%;
+            height: auto;
+            background-color: #fcf4a3; 
+            display: block;
+        }
+
+        .title {
+            font-size: 16pt;
+            font-weight: bold;
+            text-decoration: underline;
+            margin: 15px 0;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .instructions { font-style: italic; margin-bottom: 15px; }
+        .instructions ol { margin-top: 5px; list-style-type: decimal; padding-left: 20px; }
+
+        .section-divider {
+            font-weight: bold;
+            font-size: 10px;
+            margin: 10px 0 5px 0;
+            text-transform: uppercase;
+        }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        td, th { border: 1px solid black; padding: 4px; vertical-align: middle; }
+        
+        .info-table, .info-table td { border: 1px solid #000; }
+        .label { font-weight: bold; width: 150px; background-color: #f9f9f9; }
+
+        /* Departure/Arrival Table */
+        .trip-table th { background: #f2f2f2; font-size: 9px; text-align: center; }
+        .trip-table td { height: 25px; text-align: center; }
+
+        /* Signatures */
+        .sig-container { display: flex; justify-content: space-between; margin: 20px 0; }
+        .sig-box { width: 45%; text-align: center; }
+        .sig-line { border-bottom: 1.5px solid black; font-weight: bold; padding-top: 20px; margin-bottom: 5px; }
+        .sub-text { font-size: 9px; margin-top: 3px; }
+
+        /* Gasoline Section */
+        .gas-section { display: flex; justify-content: space-between; margin-top: 15px; }
+        .gas-list { width: 50%; line-height: 1.6; }
+
+        .no-print { position: fixed; top: 20px; right: 20px; }
+        .btn { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .sheet { margin: 0; box-shadow: none; width: 100%; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn" onclick="window.print()">Print Trip Ticket</button>
+</div>
+
+<div class="sheet">
+    <img src="/images/header.png" alt="Header" class="header-img">
+
+    <div class="title">VEHICLE TRIP TICKET</div>
+
+    <div class="instructions">
+        <strong>INSTRUCTIONS:</strong>
+        <ol>
+            <li>To be filled in duplicate by person requesting use of vehicle.</li>
+            <li>Original to driver to be returned to the Adm. Service upon completion.</li>
+            <li>Duplicate to Adm. Service for control.</li>
+        </ol>
+    </div>
+
+    <div class="section-divider">TO BE FILLED ONLY BY PERSON REQUESTING USE OF THE VEHICLE:</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">DATE</td>
+            <td><%= ticket.created_at ? new Date(ticket.created_at).toLocaleDateString('en-US') : '' %></td>
+            <td class="label">RIV No.</td>
+            <td><%= riv ? riv.riv_no : 'N/A' %></td>
+        </tr>
+        <tr>
+            <td class="label">DRIVER'S NAME</td>
+            <td><%= ticket.driver_name %></td>
+            <td class="label">PLATE NO.</td>
+            <td><%= ticket.plate_number %></td>
+        </tr>
+        <tr>
+            <td class="label">AUTHORIZED PASSENGER</td>
+            <td colspan="3"><%= ticket.authorized_passengers %></td>
+        </tr>
+        <tr>
+            <td class="label">DESTINATION</td>
+            <td colspan="3"><%= ticket.destination %></td>
+        </tr>
+        <tr>
+            <td class="label">PURPOSE</td>
+            <td colspan="3"><%= ticket.purpose %></td>
+        </tr>
+    </table>
+
+    <div class="sig-container">
+        <div class="sig-box">
+            <div class="sig-line"><%= officialsByPosition['city_accountant'] ? officialsByPosition['city_accountant'].name : '' %></div>
+            <div class="sub-text"><%= officialsByPosition['city_accountant'] ? officialsByPosition['city_accountant'].position : 'City Accountant' %></div>
+        </div>
+        <div class="sig-box">
+            <div class="sig-line"><%= officialsByPosition['city_mayor'] ? officialsByPosition['city_mayor'].name : '' %></div>
+            <div class="sub-text"><%= officialsByPosition['city_mayor'] ? officialsByPosition['city_mayor'].position : 'City Mayor' %></div>
+        </div>
+    </div>
+
+    <div class="section-divider">TO BE FILLED ONLY BY THE DRIVER AFTER END OF THE TRIP:</div>
+    <table class="trip-table">
+        <tr>
+            <th colspan="3">DEPARTURE</th>
+            <th colspan="4">ARRIVAL</th>
+        </tr>
+        <tr>
+            <th width="15%">TRIP NO.</th>
+            <th width="15%">TIME</th>
+            <th>PLACE</th>
+            <th width="15%">TIME</th>
+            <th>PLACE</th>
+            <th width="15%">INITIAL READING</th>
+            <th width="15%">END READING</th>
+        </tr>
+        <% 
+           // Logic to ensure at least 5 rows are rendered
+           const rowCount = 5;
+           const rowsToRender = (logs && logs.length > 0) ? logs : [];
+           const emptyRowsNeeded = Math.max(0, rowCount - rowsToRender.length);
+        %>
+
+        <% rowsToRender.forEach((log, index) => { %>
+        <tr>
+            <td><%= index + 1 %></td>
+            <td><%= log.dep_time ? new Date(log.dep_time).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: false}) : '' %></td>
+            <td><%= log.dep_place %></td>
+            <td><%= log.arr_time ? new Date(log.arr_time).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', hour12: false}) : '' %></td>
+            <td><%= log.arr_place %></td>
+            <td><%= log.odo_beginning %></td>
+            <td><%= log.odo_ending %></td>
+        </tr>
+        <% }); %>
+
+        <% for(let i = 0; i < emptyRowsNeeded; i++) { %>
+        <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <% } %>
+    </table>
+
+    <div class="gas-section">
+        <div class="gas-list">
+            <% 
+                const lastLog = (logs && logs.length > 0) ? logs[logs.length - 1] : {};
+                
+                let gasolineIssued = 0;
+                if (riv && riv.items) {
+                    gasolineIssued = riv.items.reduce((sum, item) => sum + parseFloat(item.quantity_liters), 0);
+                }
+                
+                const totalDistance = logs.reduce((sum, log) => sum + (parseFloat(log.total_distance) || 0), 0);
+            %>
+            <strong>GASOLINE USED:</strong><br>
+            Balance in tank.................... <b><%= lastLog.balance_in_tank_start %></b><br>
+            Issued from stock................ <b><%= gasolineIssued > 0 ? gasolineIssued.toFixed(2) : '' %></b><br>
+            Purchased outside..............<br>
+            Gasoline Used... Liters......... <b><%= lastLog.gasoline_used %></b><br>
+            Balance in tank.................... <b><%= lastLog.balance_in_tank_end %></b><br>
+            Gear Oil put in...................... <b><%= lastLog.gear_oil_used %></b><br>
+            Motor oil put in.................... <b><%= lastLog.oil_used %></b><br>
+            Brake fluid put in................ <b><%= lastLog.brake_fluid_used %></b><br>
+            Grease issued..................... <b><%= lastLog.grease_used %></b><br>
+            <strong>Total distance traveled.......... <b><%= totalDistance.toFixed(2) %></b></strong>
+        </div>
+        <div style="width: 40%; text-align: center;">
+            <p style="text-align: left; font-size: 10px; margin-top: 40px;">Certified Correct:</p>
+            <div class="sig-line" style="margin-top: 20px;"><%= ticket.driver_name %></div>
+            <div class="sub-text">Driver</div>
+            
+            <p style="text-align: left; font-size: 10px; margin-top: 60px;">I HEREBY CERTIFY that the vehicle was used on official business as stated above.</p>
+            
+            <div class="sig-line" style="margin-top: 30px;"><%= ticket.authorized_passengers %></div>
+            <div class="sub-text">Passenger</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
