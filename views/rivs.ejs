@@ -17,9 +17,9 @@
                     <!-- <button onclick="document.getElementById('summaryModal').style.display='block'" class="bg-cao-gold hover:bg-yellow-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg shadow-yellow-700/20 transform transition active:scale-[0.98] inline-flex items-center">
                         <i class="fas fa-chart-bar mr-2"></i> Monthly Summary
                     </button> -->
-                    <button type="button" onclick="document.getElementById('rivModal').style.display='block'" class="bg-cao-gold hover:bg-yellow-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg shadow-yellow-700/20 transform transition active:scale-[0.98] inline-flex items-center">
-                        <i class="fas fa-plus mr-2"></i> New RIV
-                    </button>
+                    <a href="/fuel-rivs/print-summary" target="_blank" class="bg-cao-gold hover:bg-yellow-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg shadow-yellow-700/20 transform transition active:scale-[0.98] inline-flex items-center no-underline">
+                        <i class="fas fa-print mr-2"></i> Print Summary
+                    </a>
                 </div>
             </div>
         </div>
@@ -79,64 +79,3 @@
     </div>
   </div>
 </div>
-
-<!-- RIV Modal -->
-<div id="rivModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display:none;">
-  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" aria-hidden="true" onclick="document.getElementById('rivModal').style.display='none'"></div>
-    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-    <div class="relative inline-block w-full max-w-md overflow-hidden text-left align-bottom transition-all transform bg-white rounded-2xl shadow-xl sm:my-8 sm:align-middle">
-      <div class="px-6 pt-6 pb-4">
-      <h3 class="text-lg font-bold text-gray-800 mb-4">
-        <i class="fas fa-plus-circle text-yellow-600 mr-2"></i>New RIV
-      </h3>
-    
-    <form method="POST" action="/fuel-rivs">
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">RIV No.</label>
-          <input type="text" name="riv_no" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">Date</label>
-          <input type="date" name="date" value="<%= new Date().toISOString().split('T')[0] %>" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">Office</label>
-          <input type="text" name="office" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-2">Fuel Items (Liters)</label>
-          <div class="space-y-2 bg-yellow-50 p-4 rounded-xl">
-          <% ['Diesel', 'Regular', 'Extra'].forEach((type, index) => { %>
-          <div class="flex items-center gap-3">
-            <span class="text-sm text-gray-600 w-16 font-medium"><%= type %></span>
-            <input type="hidden" name="items[<%= index %>][fuel_type]" value="<%= type %>">
-            <input type="number" step="0.01" name="items[<%= index %>][quantity_liters]" class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" placeholder="0.00" min="0">
-          </div>
-          <% }); %>
-          </div>
-        </div>
-      </div>
-      <div class="mt-6 flex justify-end gap-3">
-        <button type="button" onclick="document.getElementById('rivModal').style.display='none'" class="px-5 py-2.5 border border-gray-200 rounded-xl text-gray-600 font-medium hover:bg-gray-50 transition">Cancel</button>
-        <button type="submit" class="px-5 py-2.5 bg-cao-gold hover:bg-yellow-700 text-white font-bold rounded-xl shadow-lg shadow-yellow-700/20 transition">
-          <i class="fas fa-save mr-2"></i>Create RIV
-        </button>
-      </div>
-    </form>
-    </div>
-    </div>
-  </div>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  window.onclick = (event) => {
-    const modal = document.getElementById('rivModal');
-    if (event.target === modal && modal.style.display === 'block') {
-        modal.style.display = 'none';
-    }
-  };
-});
-</script>

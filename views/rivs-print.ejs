@@ -1,0 +1,196 @@
+<!-- /views/rivs-print.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDTRIVE Report</title>
+    <style>
+        @media print {
+            @page { size: portrait; margin: 0.5in; }
+            .no-print { display: none; }
+            body {
+                margin: 0;
+                background: white;
+            }
+            .page {
+                width: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            margin: 0;
+            color: #000;
+            background-color: #e0e0e0;
+        }
+
+        .page {
+            background: white;
+            display: block;
+            margin: 20px auto;
+            padding: 1.5cm;
+            box-shadow: 0 0 0.5cm rgba(0,0,0,0.2);
+            width: 21cm;
+            min-height: 29.7cm;
+            box-sizing: border-box;
+        }
+
+        .header-img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .sub-header {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .sub-header td {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .line-fill {
+            border-bottom: 1px solid black;
+            display: inline-block;
+            min-width: 150px;
+            margin: 0 5px;
+            text-align: center;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid black;
+            text-align: center;
+            padding: 4px;
+            height: 16px;
+            word-wrap: break-word;
+        }
+
+        .data-table th {
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .total-row td {
+            font-weight: bold;
+        }
+
+        .footer-section {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .signature-box {
+            float: right;
+            width: 45%;
+            text-align: center;
+        }
+
+        .sig-line {
+            border-top: 1px solid black;
+            margin-top: 40px;
+            padding-top: 5px;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print" style="position: fixed; top: 10px; right: 10px;">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Print SDTRIVE Report</button>
+    </div>
+
+    <div class="page">
+        <!-- Assuming header.png is in your public/images folder or root public folder -->
+        <img src="/images/header.png" class="header-img" alt="CAO Header">
+
+        <div class="title">SUMMARY OF DAILY TOTALS OF REQUISITION AND ISSUE VOUCHERS OR EQUIVALENT</div>
+        
+        <table class="sub-header">
+            <tr>
+                <td style="text-align: right; width: 60%;">
+                    For the month of <span class="line-fill" style="min-width: 180px;"><%= monthName %> <%= year %></span>
+                </td>
+                <td style="text-align: right; width: 40%;">
+                    No. <span class="line-fill"></span>
+                </td>
+            </tr>
+        </table>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 7%;">Date</th>
+                    <th rowspan="2" style="width: 23%;">Requisition and Issue Voucher in Batch</th>
+                    <th colspan="3">Quantity (Liters)</th>
+                </tr>
+                <tr>
+                    <th style="width: 23%;">Extra</th>
+                    <th style="width: 23%;">Regular</th>
+                    <th style="width: 24%;">Diesel</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% 
+                // Iterate over dailyTotals assuming it is an object/map passed from controller
+                if (typeof dailyTotals !== 'undefined') {
+                    Object.keys(dailyTotals).forEach(function(day) { 
+                        var totals = dailyTotals[day];
+                        if (totals['riv_numbers'] || totals['Extra'] > 0 || totals['Regular'] > 0 || totals['Diesel'] > 0) {
+                %>
+                    <tr>
+                        <td><%= day %></td>
+                        <td style="text-align: left; padding-left: 5px;"><%= totals['riv_numbers'] %></td>
+                        <td><%= (totals['Extra'] > 0) ? parseFloat(totals['Extra']).toFixed(2) : '' %></td>
+                        <td><%= (totals['Regular'] > 0) ? parseFloat(totals['Regular']).toFixed(2) : '' %></td>
+                        <td><%= (totals['Diesel'] > 0) ? parseFloat(totals['Diesel']).toFixed(2) : '' %></td>
+                    </tr>
+                <% 
+                        }
+                    }); 
+                }
+                %>
+                <tr class="total-row">
+                    <td colspan="2" style="text-align: left; padding-left: 30px;">Total</td>
+                    <td><%= (typeof grandTotals !== 'undefined' && grandTotals['Extra'] > 0) ? parseFloat(grandTotals['Extra']).toFixed(2) : '' %></td>
+                    <td><%= (typeof grandTotals !== 'undefined' && grandTotals['Regular'] > 0) ? parseFloat(grandTotals['Regular']).toFixed(2) : '' %></td>
+                    <td><%= (typeof grandTotals !== 'undefined' && grandTotals['Diesel'] > 0) ? parseFloat(grandTotals['Diesel']).toFixed(2) : '' %></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer-section">
+            <div class="signature-box">
+                <p style="text-align: left; margin-bottom: 0;" class="label">Certified Correct:</p>
+                <div class="sig-line"></div>
+                <span class="label">Gas Control Officer/Clerk</span>
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+
+</body>
+</html>

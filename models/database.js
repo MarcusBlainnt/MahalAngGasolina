@@ -314,6 +314,22 @@ async function createUser(user) {
     return { id: result.insertId, name, email, role };
 }
 
+async function updateUser(id, user) {
+    const { name, email, role } = user;
+    const db = await getDB();
+    // For security, password is not updated via this generic method.
+    // A separate "change password" flow would be better.
+    await db.query('UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?', [name, email, role, id]);
+    return getUserById(id);
+}
+
+async function deleteUser(id) {
+    const db = await getDB();
+    // Using a hard delete for users.
+    const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
+    return result.affectedRows > 0;
+}
+
 // --- Drivers ---
 const getAllDrivers = getAll('drivers', true);
 const getDriverById = getById('drivers');
@@ -576,6 +592,67 @@ async function getNextRivNumber() {
     return `${prefix}-${String(nextNum).padStart(3, '0')}`;
 }
 
+async function getSummaryDataForMonth(month, year) {
+    const db = await getDB();
+    const query = `
+        SELECT 
+            DAY(fr.date) as day,
+            GROUP_CONCAT(DISTINCT fr.riv_no ORDER BY fr.riv_no SEPARATOR ', ') as riv_numbers,
+            SUM(CASE WHEN fri.fuel_type = 'Extra' THEN fri.quantity_liters ELSE 0 END) as Extra,
+            SUM(CASE WHEN fri.fuel_type = 'Regular' THEN fri.quantity_liters ELSE 0 END) as Regular,
+            SUM(CASE WHEN fri.fuel_type = 'Diesel' THEN fri.quantity_liters ELSE 0 END) as Diesel
+        FROM 
+            fuel_rivs fr
+        JOIN 
+            fuel_riv_items fri ON fr.id = fri.fuel_riv_id
+        WHERE 
+            MONTH(fr.date) = ? AND YEAR(fr.date) = ?
+        GROUP BY 
+            DAY(fr.date)
+        ORDER BY 
+            day ASC;
+    `;
+    const [rows] = await db.query(query, [month, year]);
+    return rows;
+}
+
+async function getMonthlyTravelData(month, year, driverName, plateNumber) {
+    const db = await getDB();
+    const query = `
+        SELECT 
+            DAY(tl.dep_time) as day,
+            SUM(COALESCE(tl.total_distance, 0)) as distance,
+            SUM(COALESCE(tl.gasoline_used, 0)) as gasoline,
+            SUM(COALESCE(tl.oil_used, 0)) as oil,
+            SUM(COALESCE(tl.grease_used, 0)) as grease,
+            GROUP_CONCAT(DISTINCT tt.destination SEPARATOR ', ') as remarks,
+            MAX(tt.plate_number) as plate_number
+        FROM trip_tickets tt
+        JOIN trip_logs tl ON tt.id = tl.trip_ticket_id
+        WHERE MONTH(tl.dep_time) = ? AND YEAR(tl.dep_time) = ? AND tt.driver_name = ? AND tt.plate_number = ?
+        GROUP BY DAY(tl.dep_time)
+        ORDER BY day ASC
+    `;
+    const [rows] = await db.query(query, [month, year, driverName, plateNumber]);
+    return rows;
+}
+
+async function getDriversForVehicleInMonth(month, year, plateNumber) {
+    const db = await getDB();
+    const query = `
+        SELECT DISTINCT tt.driver_name
+        FROM trip_tickets tt
+        JOIN trip_logs tl ON tt.id = tl.trip_ticket_id
+        WHERE 
+            MONTH(tl.dep_time) = ? 
+            AND YEAR(tl.dep_time) = ? 
+            AND tt.plate_number = ?
+        ORDER BY tt.driver_name ASC;
+    `;
+    const [rows] = await db.query(query, [month, year, plateNumber]);
+    return rows;
+}
+
 module.exports = {
   init,
   getDB,
@@ -584,6 +661,8 @@ module.exports = {
   getUserById,
   getUserByEmail,
   createUser,
+  updateUser,
+  deleteUser,
   // Drivers
   getAllDrivers,
   getDriverById,
@@ -627,5 +706,8 @@ module.exports = {
   // Reports
   generateMonthlyReport,
   createTripTicketWithRiv,
-  getNextRivNumber
+  getNextRivNumber,
+  getSummaryDataForMonth,
+  getMonthlyTravelData,
+  getDriversForVehicleInMonth
 };

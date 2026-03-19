@@ -41,7 +41,7 @@
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div class="flex justify-end gap-2">
-                        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-lg text-xs transition">Edit</button>
+                        <button onclick="openEditVehicleModal('<%= JSON.stringify(vehicle) %>')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-lg text-xs transition">Edit</button>
                         <form action="/vehicles/<%= vehicle.id %>/delete" method="POST" onsubmit="return confirm('Are you sure?');">
                             <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1.5 px-3 rounded-lg text-xs transition">Delete</button>
                         </form>

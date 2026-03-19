@@ -22,8 +22,6 @@
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term Start</th>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term End</th>
                   <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
@@ -34,8 +32,6 @@
                     <td class="px-4 py-4 whitespace-nowrap font-bold text-gray-900"><%= official.name %></td>
                     <td class="px-4 py-4 whitespace-nowrap text-gray-600"><%= official.position %></td>
                     <td class="px-4 py-4 whitespace-nowrap text-gray-600"><%= official.title %></td>
-                    <td class="px-4 py-4 whitespace-nowrap text-gray-600"><%= official.term_start ? new Date(official.term_start).toLocaleDateString() : 'N/A' %></td>
-                    <td class="px-4 py-4 whitespace-nowrap text-gray-600"><%= official.term_end ? new Date(official.term_end).toLocaleDateString() : 'N/A' %></td>
                     <td class="px-4 py-4 whitespace-nowrap">
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= official.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
                         <%= official.is_active ? 'Active' : 'Inactive' %>
@@ -43,7 +39,7 @@
                     </td>
                     <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div class="flex justify-end gap-2">
-                        <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-lg text-xs transition">Edit</button>
+                        <button onclick="openEditOfficialModal('<%= JSON.stringify(official) %>')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-1.5 px-3 rounded-lg text-xs transition">Edit</button>
                         <form action="/officials/<%= official.id %>/delete" method="POST" onsubmit="return confirm('Are you sure?');">
                             <button type="submit" class="bg-red-100 hover:bg-red-200 text-red-700 font-medium py-1.5 px-3 rounded-lg text-xs transition">Delete</button>
                         </form>
@@ -71,9 +67,11 @@
       <div style="padding:24px;">
         <input type="text" name="name" placeholder="Full Name" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;" required>
         <input type="text" name="position" placeholder="Position" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;" required>
-        <input type="text" name="title" placeholder="Title" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;" required>
-        <input type="date" name="term_start" placeholder="Term Start" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;">
-        <input type="date" name="term_end" placeholder="Term End" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;">
+        <input type="text" name="title" placeholder="Title (e.g., CPA)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;" required>
+        <label class="text-sm text-gray-600">Term Start:</label>
+        <input type="date" name="term_start" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;">
+        <label class="text-sm text-gray-600">Term End:</label>
+        <input type="date" name="term_end" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;">
       </div>
       <div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px;background:#f9fafb;border-radius:0 0 16px 16px;">
         <button type="button" onclick="document.getElementById('officialModal').style.display='none'" style="padding:10px 20px;border-radius:8px;background:white;border:1px solid #d1d5db;">Cancel</button>
@@ -82,11 +80,55 @@
     </form>
   </div>
 </div>
+
+<!-- Edit Official Modal -->
+<div id="editOfficialModal" style="display:none;position:fixed;z-index:50;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);overflow-y:auto;">
+  <div style="margin:5% auto;width:90%;max-width:500px;background:white;border-radius:16px;">
+    <div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#D4AF37 0%,#B8860B 100%);border-radius:16px 16px 0 0;">
+      <h3 style="margin:0;font-size:20px;font-weight:700;color:white;">Edit Official</h3>
+      <button type="button" onclick="document.getElementById('editOfficialModal').style.display='none'" style="background:none;border:none;font-size:28px;color:white;">&times;</button>
+    </div>
+    <form id="editOfficialForm" method="POST" action="">
+      <div style="padding:24px;">
+        <input type="text" id="edit_name" name="name" placeholder="Full Name" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;" required>
+        <input type="text" id="edit_position" name="position" placeholder="Position" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;" required>
+        <input type="text" id="edit_title" name="title" placeholder="Title (e.g., CPA)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;" required>
+        <label class="text-sm text-gray-600">Term Start:</label>
+        <input type="date" id="edit_term_start" name="term_start" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;">
+        <label class="text-sm text-gray-600">Term End:</label>
+        <input type="date" id="edit_term_end" name="term_end" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #d1d5db;">
+        <div class="flex items-center">
+            <input id="edit_is_active" name="is_active" type="checkbox" value="1" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+            <label for="edit_is_active" class="ml-2 block text-sm text-gray-900">Active</label>
+        </div>
+      </div>
+      <div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px;background:#f9fafb;border-radius:0 0 16px 16px;">
+        <button type="button" onclick="document.getElementById('editOfficialModal').style.display='none'" style="padding:10px 20px;border-radius:8px;background:white;border:1px solid #d1d5db;">Cancel</button>
+        <button type="submit" style="padding:10px 20px;border-radius:8px;background:#D4AF37;color:white;border:none;">Update Official</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   window.onclick = (event) => {
-    const modal = document.getElementById('officialModal');
-    if (event.target === modal) modal.style.display = 'none';
+    const newModal = document.getElementById('officialModal');
+    const editModal = document.getElementById('editOfficialModal');
+    if (event.target === newModal) newModal.style.display = 'none';
+    if (event.target === editModal) editModal.style.display = 'none';
   };
 });
+
+function openEditOfficialModal(officialString) {
+    const official = JSON.parse(officialString);
+    document.getElementById('editOfficialForm').action = `/officials/${official.id}/update`;
+    document.getElementById('edit_name').value = official.name;
+    document.getElementById('edit_position').value = official.position;
+    document.getElementById('edit_title').value = official.title;
+    document.getElementById('edit_term_start').value = official.term_start ? new Date(official.term_start).toISOString().split('T')[0] : '';
+    document.getElementById('edit_term_end').value = official.term_end ? new Date(official.term_end).toISOString().split('T')[0] : '';
+    document.getElementById('edit_is_active').checked = official.is_active == 1;
+    document.getElementById('editOfficialModal').style.display = 'block';
+}
 </script>

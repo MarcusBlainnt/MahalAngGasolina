@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Report of Official Travels</title>
+    <style>
+        @media print {
+            @page { margin: 0.5in; }
+            .no-print { display: none; }
+            body {
+                margin: 0;
+                background: white;
+            }
+            .page {
+                width: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            color: #333;
+            margin: 0;
+            background-color: #e0e0e0;
+        }
+
+        .page {
+            background: white;
+            display: block;
+            margin: 20px auto;
+            padding: 1.5cm;
+            box-shadow: 0 0 0.5cm rgba(0,0,0,0.2);
+            width: 21cm;
+            min-height: 29.7cm;
+            box-sizing: border-box;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .report-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            text-decoration: underline;
+            margin-bottom: 5px;
+        }
+
+        .month-sub {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .meta-table {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .main-table th, .main-table td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .main-table th { background-color: #f2f2f2; font-weight: bold; }
+
+        .certification {
+            margin-top: 20px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .sig-box {
+            width: 45%;
+            text-align: center;
+        }
+
+        .line {
+            border-bottom: 1px solid black;
+            margin-bottom: 5px;
+            min-height: 20px;
+        }
+
+        .footer-note { font-weight: bold; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="position: fixed; top: 10px; right: 10px;">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Print Report</button>
+    </div>
+
+    <div class="page">
+        <div class="header-container">
+            <img src="/images/header.png" alt="Report Header" style="width: 100%; display: block;">
+        </div>
+
+        <div class="report-title">MONTHLY REPORT OF OFFICIAL TRAVELS</div>
+        <div class="month-sub">For the month of <%= monthName %></div>
+
+        <table class="meta-table">
+            <tr>
+                <td width="50%">Vehicle Plate No. <b><%= plateNumber %></b></td>
+                <td width="50%">Date: <b><%= reportDate %></b></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Driver's Name: <b><%= driverName %></b></td>
+            </tr>
+        </table>
+
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width: 8%;">Date</th>
+                    <th style="width: 20%;">Distance Traveled (in Kms.)</th>
+                    <th style="width: 20%;">Gasoline Consumed (in Liters)</th>
+                    <th style="width: 15%;">Oil Used (in Liters)</th>
+                    <th style="width: 15%;">Grease Used</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% 
+                if (typeof dailyData !== 'undefined') {
+                    Object.keys(dailyData).forEach(function(day) {
+                        var data = dailyData[day];
+                %>
+                <tr>
+                    <td><%= day %></td>
+                    <td><%= (data.distance > 0) ? parseFloat(data.distance).toFixed(2) : '' %></td>
+                    <td><%= (data.gasoline > 0) ? parseFloat(data.gasoline).toFixed(2) : '' %></td>
+                    <td><%= (data.oil > 0) ? parseFloat(data.oil).toFixed(2) : '' %></td>
+                    <td><%= (data.grease > 0) ? parseFloat(data.grease).toFixed(2) : '' %></td>
+                    <td><%= data.remarks %></td>
+                </tr>
+                <% 
+                    });
+                }
+                %>
+                <tr style="font-weight: bold;">
+                    <td>TOTALS:</td>
+                    <td><%= (totals.distance > 0) ? parseFloat(totals.distance).toFixed(2) : '' %></td>
+                    <td><%= (totals.gasoline > 0) ? parseFloat(totals.gasoline).toFixed(2) : '' %></td>
+                    <td><%= (totals.oil > 0) ? parseFloat(totals.oil).toFixed(2) : '' %></td>
+                    <td><%= (totals.grease > 0) ? parseFloat(totals.grease).toFixed(2) : '' %></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="certification">
+            I hereby certify to the correctness of the above statement and that the motor vehicle was used on strictly official business only.
+        </div>
+
+        <div class="signature-section">
+            <div class="sig-box">
+                <div class="footer-note">Approved:</div>
+                <div style="margin-top: 30px;" class="line"></div>
+                <div class="footer-note">Head of Office</div>
+            </div>
+            <div class="sig-box">
+                <div style="margin-top: 45px;" class="line"><b><%= driverName %></b></div>
+                <div class="footer-note">Driver</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

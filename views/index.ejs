@@ -4,25 +4,25 @@
     <!-- Hero cards (updated links) -->
     <div class="w-full mx-auto p-8 text-center mb-12">
       <div class="grid md:grid-cols-3 gap-6">
-        <a href="/fuel-rivs" class="group">
+        <a href="/trip-tickets" class="group">
           <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-8 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300 text-center">
             <i class="fas fa-plus-circle text-4xl mb-4 opacity-90 group-hover:opacity-100"></i>
-            <h3 class="text-2xl font-bold mb-2">Fuel RIVs</h3>
-            <p class="opacity-90">Manage Fuel RIVs</p>
-          </div>
-        </a>
-        <a href="/trip-tickets" class="group">
-          <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-8 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300 text-center">
-            <i class="fas fa-list text-4xl mb-4 opacity-90 group-hover:opacity-100"></i>
             <h3 class="text-2xl font-bold mb-2">Trip Tickets</h3>
             <p class="opacity-90">View all fuel tickets</p>
           </div>
         </a>
+        <div onclick="document.getElementById('officialTravelsModal').style.display='flex'" class="group cursor-pointer">
+          <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-8 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300 text-center h-full">
+            <i class="fas fa-list text-4xl mb-4 opacity-90 group-hover:opacity-100"></i>
+            <h3 class="text-2xl font-bold mb-2">Official Travels</h3>
+            <p class="opacity-90">Generate Monthly Report of Official Travels</p>
+          </div>
+        </div>
         <a href="/reports" class="group">
           <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-8 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300 text-center">
             <i class="fas fa-chart-line text-4xl mb-4 opacity-90 group-hover:opacity-100"></i>
-            <h3 class="text-2xl font-bold mb-2">Monthly Reports</h3>
-            <p class="opacity-90">Generate monthly summaries</p>
+            <h3 class="text-2xl font-bold mb-2">Fuel Consumption</h3>
+            <p class="opacity-90">Generate Monthly Fuel Consumption</p>
           </div>
         </a>
       </div>
@@ -215,6 +215,59 @@
   </div>
 </div>
 
+<!-- Official Travels Report Modal -->
+<div id="officialTravelsModal" style="display:none;position:fixed;z-index:50;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);overflow-y:auto;">
+  <div style="margin:auto;width:90%;max-width:400px;background:white;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+    <div style="padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#10b981 0%,#059669 100%);border-radius:16px 16px 0 0;">
+      <h3 style="margin:0;font-size:20px;font-weight:700;color:white;">
+        <i class="fas fa-file-alt mr-2"></i>Generate Report
+      </h3>
+      <button type="button" onclick="document.getElementById('officialTravelsModal').style.display='none'" style="background:none;border:none;font-size:28px;color:white;cursor:pointer;line-height:1;opacity:0.9;">&times;</button>
+    </div>
+    
+    <form id="travelReportForm" method="GET" action="/print/monthly-travel" target="_blank">
+      <div style="padding:24px;">
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Month</label>
+          <div style="display:flex; gap:10px;">
+              <select name="month" id="reportMonth" style="flex:1;padding:10px;border:1px solid #d1d5db;border-radius:8px;" required>
+                  <% const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]; const currentMonth = new Date().getMonth(); months.forEach((m, i) => { %>
+                    <option value="<%= i + 1 %>" <%= i === currentMonth ? 'selected' : '' %>><%= m %></option>
+                  <% }); %>
+              </select>
+              <select name="year" id="reportYear" style="flex:1;padding:10px;border:1px solid #d1d5db;border-radius:8px;" required>
+                  <% const currentYear = new Date().getFullYear(); for(let y = currentYear; y >= currentYear - 5; y--) { %>
+                    <option value="<%= y %>"><%= y %></option>
+                  <% } %>
+              </select>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Plate Number</label>
+          <input type="text" list="report_plate_number_list" id="reportPlateNumber" name="plate_number" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;" placeholder="Type or select a plate number..." required autocomplete="off">
+          <datalist id="report_plate_number_list">
+            <% if (vehicles && Array.isArray(vehicles)) { vehicles.forEach(v => { %>
+              <option value="<%= v.plate_number %>">
+            <% }); } %>
+          </datalist>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Select Driver</label>
+          <select name="driver" id="reportDriver" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;" required>
+            <option value="">-- Select Date & Plate Number First --</option>
+          </select>
+        </div>
+      </div>
+      <div style="padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px;background:#f9fafb;border-radius:0 0 16px 16px;">
+        <button type="button" onclick="document.getElementById('officialTravelsModal').style.display='none'" style="padding:10px 20px;border:1px solid #d1d5db;border-radius:8px;background:white;color:#374155;cursor:pointer;font-size:14px;font-weight:500;">Cancel</button>
+        <button type="submit" style="padding:10px 20px;border:none;border-radius:8px;background:#10b981;color:white;cursor:pointer;font-size:14px;font-weight:600;box-shadow:0 4px 14px rgba(16, 185, 129, 0.4);">
+          <i class="fas fa-print mr-2"></i>Generate
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <style>
 .text-yellow-600 { color: #ca8a04; }
 .shadow-yellow-700\/20 { box-shadow: 0 10px 15px -3px rgb(212 175 55 / 0.2); }
@@ -227,7 +280,57 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onclick = (event) => {
     const modal = document.getElementById('tripModal');
     if (event.target === modal) modal.style.display = 'none';
+    const travelModal = document.getElementById('officialTravelsModal');
+    if (event.target === travelModal) travelModal.style.display = 'none';
   };
+
+  // New logic for Official Travels Modal
+  const reportMonthEl = document.getElementById('reportMonth');
+  const reportYearEl = document.getElementById('reportYear');
+  const reportPlateEl = document.getElementById('reportPlateNumber');
+  const reportDriverEl = document.getElementById('reportDriver');
+
+  async function updateDriverOptions() {
+    const month = reportMonthEl.value;
+    const year = reportYearEl.value;
+    const plateNumber = reportPlateEl.value;
+
+    reportDriverEl.innerHTML = '<option value="">Loading...</option>';
+    reportDriverEl.disabled = true;
+
+    if (!month || !year || !plateNumber) {
+      reportDriverEl.innerHTML = '<option value="">-- Select Date & Plate Number --</option>';
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/drivers-for-vehicle?month=${month}&year=${year}&plate_number=${encodeURIComponent(plateNumber)}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const drivers = await response.json();
+      
+      reportDriverEl.innerHTML = ''; // Clear loading/placeholder
+      if (drivers.length > 0) {
+        reportDriverEl.innerHTML = '<option value="">-- Select Driver --</option>';
+        drivers.forEach(driver => {
+          const option = document.createElement('option');
+          option.value = driver.driver_name;
+          option.textContent = driver.driver_name;
+          reportDriverEl.appendChild(option);
+        });
+      } else {
+        reportDriverEl.innerHTML = '<option value="">-- No drivers found for this selection --</option>';
+      }
+    } catch (error) {
+      console.error('Failed to fetch drivers:', error);
+      reportDriverEl.innerHTML = '<option value="">-- Error loading drivers --</option>';
+    } finally {
+      reportDriverEl.disabled = false;
+    }
+  }
+
+  reportMonthEl.addEventListener('change', updateDriverOptions);
+  reportYearEl.addEventListener('change', updateDriverOptions);
+  reportPlateEl.addEventListener('input', updateDriverOptions);
 
   // Check for action query param to open modal on page load
   const urlParams = new URLSearchParams(window.location.search);

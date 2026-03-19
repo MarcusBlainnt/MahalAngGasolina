@@ -72,6 +72,7 @@ router.get('/fuel-rivs', async (req, res) => {
   }
 });
 
+// POST /fuel-rivs (Create a new RIV)
 router.post('/fuel-rivs', async (req, res) => {
   try {
     // Basic validation
@@ -94,6 +95,7 @@ router.post('/fuel-rivs', async (req, res) => {
   }
 });
 
+// GET /fuel-rivs/print-summary (Specific route for printing summary)
 router.get('/fuel-rivs/:id/print', async (req, res) => {
     try {
         const riv = await db.getFuelRivWithItems(req.params.id);
@@ -125,6 +127,54 @@ router.get('/fuel-rivs/:id/print', async (req, res) => {
     }
 });
 
+// GET /fuel-rivs/:id/print (Dynamic route for printing a specific RIV)
+router.get('/fuel-rivs/print-summary', async (req, res) => {
+  try {
+    // Default to current month/year if not provided in query
+    const month = req.query.month || new Date().getMonth() + 1;
+    const year = req.query.year || new Date().getFullYear();
+
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = monthNames[month - 1];
+
+    const summaryData = await db.getSummaryDataForMonth(month, year);
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const dailyTotals = {};
+    for (let i = 1; i <= daysInMonth; i++) {
+        dailyTotals[i] = {
+            riv_numbers: '',
+            Extra: 0,
+            Regular: 0,
+            Diesel: 0
+        };
+    }
+
+    const grandTotals = { Extra: 0, Regular: 0, Diesel: 0 };
+
+    summaryData.forEach(row => {
+        dailyTotals[row.day] = {
+            riv_numbers: row.riv_numbers,
+            Extra: parseFloat(row.Extra),
+            Regular: parseFloat(row.Regular),
+            Diesel: parseFloat(row.Diesel)
+        };
+        grandTotals.Extra += parseFloat(row.Extra);
+        grandTotals.Regular += parseFloat(row.Regular);
+        grandTotals.Diesel += parseFloat(row.Diesel);
+    });
+
+    res.render('rivs-print', { monthName, year, dailyTotals, grandTotals });
+
+  } catch (err) {
+    console.error("Error generating summary report:", err);
+    res.status(500).send(err.message);
+  }
+});
+
+// GET /fuel-rivs/:id (Dynamic catch-all for a specific RIV - MUST BE LAST in this group)
 router.get('/fuel-rivs/:id', async (req, res) => {
     try {
         const riv = await db.getFuelRivWithItems(req.params.id);
@@ -140,7 +190,8 @@ router.get('/fuel-rivs/:id', async (req, res) => {
 const crudRoutes = [
     { path: 'vehicles', getAll: db.getAllVehicles, create: db.createVehicle, update: db.updateVehicle, delete: db.deleteVehicle },
     { path: 'drivers', getAll: db.getAllDrivers, create: db.createDriver, update: db.updateDriver, delete: db.deleteDriver },
-    { path: 'officials', getAll: db.getAllOfficials, create: db.createOfficial, update: db.updateOfficial, delete: db.deleteOfficial }
+    { path: 'officials', getAll: db.getAllOfficials, create: db.createOfficial, update: db.updateOfficial, delete: db.deleteOfficial },
+    { path: 'users', getAll: db.getAllUsers, create: db.createUser, update: db.updateUser, delete: db.deleteUser }
 ];
 
 crudRoutes.forEach(route => {
@@ -351,6 +402,72 @@ router.get('/reports', async (req, res) => {
   } catch (err) {
     res.status(500).send(err.message);
   }
+});
+
+router.get('/api/drivers-for-vehicle', async (req, res) => {
+  try {
+    const { month, year, plate_number } = req.query;
+    if (!month || !year || !plate_number) {
+      return res.status(400).json({ error: 'Month, year, and plate_number are required.' });
+    }
+    const drivers = await db.getDriversForVehicleInMonth(month, year, plate_number);
+    res.json(drivers);
+  } catch (err) {
+    console.error("Error fetching drivers for vehicle:", err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/print/monthly-travel', async (req, res) => {
+    try {
+        const { driver, month, year, plate_number } = req.query;
+        if (!driver) return res.status(400).send("Driver name is required");
+        if (!plate_number) return res.status(400).send("Plate number is required");
+
+        const reportMonth = month || new Date().getMonth() + 1;
+        const reportYear = year || new Date().getFullYear();
+
+        const data = await db.getMonthlyTravelData(reportMonth, reportYear, driver, plate_number);
+        
+        const daysInMonth = new Date(reportYear, reportMonth, 0).getDate();
+        const dailyData = {};
+        const totals = { distance: 0, gasoline: 0, oil: 0, grease: 0 };
+
+        // Initialize all days
+        for(let i=1; i<=daysInMonth; i++) {
+             dailyData[i] = { distance: 0, gasoline: 0, oil: 0, grease: 0, remarks: '' };
+        }
+
+        data.forEach(row => {
+            dailyData[row.day] = {
+                distance: parseFloat(row.distance),
+                gasoline: parseFloat(row.gasoline),
+                oil: parseFloat(row.oil),
+                grease: parseFloat(row.grease),
+                remarks: row.remarks
+            };
+            totals.distance += parseFloat(row.distance);
+            totals.gasoline += parseFloat(row.gasoline);
+            totals.oil += parseFloat(row.oil);
+            totals.grease += parseFloat(row.grease);
+        });
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthName = `${monthNames[reportMonth - 1]} ${reportYear}`;
+        const reportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        res.render('print_monthly_travel', {
+            monthName,
+            year: reportYear,
+            plateNumber: plate_number,
+            reportDate,
+            driverName: driver,
+            dailyData,
+            totals
+        });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 });
 
 
