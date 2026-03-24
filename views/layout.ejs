@@ -28,10 +28,10 @@
         <div class="flex items-center space-x-6">
           <a href="/dashboard" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-chart-simple mr-1"></i>Dashboard</a>
           <a href="/fuel-rivs" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-list mr-1"></i>RIVs</a>
+          <% if (user && user.role === 'admin') { %>
           <a href="/vehicles" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-car mr-1"></i>Vehicles</a>
           <a href="/drivers" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-id-card mr-1"></i>Drivers</a>
           <a href="/officials" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-user-tie mr-1"></i>Officials</a>
-          <% if (user && user.role === 'admin') { %>
           <a href="/users" class="text-gray-700 hover:text-cao-gold px-3 py-2 rounded-lg transition"><i class="fas fa-users mr-1"></i>Users</a>
           <% } %>
           <div class="flex items-center space-x-4">

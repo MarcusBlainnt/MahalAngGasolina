@@ -44,26 +44,23 @@ app.get('/login', (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const dbConn = db.getDB();
+    const pool = db.getDB();
     
-    const [rows] = await dbConn.execute('SELECT * FROM users WHERE email = ?', [email]);
-    const user = rows[0];
-    
-    if (!user) {
-      return res.render('login', { title: 'Login', error: 'Invalid credentials', oldEmail: email });
-    }
-    
-    // Handle PHP's '$2y$' bcrypt prefix by replacing it with '$2a$' for compatibility with Node's bcryptjs
-    const userPassword = user.password.replace(/^\$2y\$/, '$2a$');
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
-    const isMatch = await bcrypt.compare(password, userPassword);
-    if (!isMatch) {
-      return res.render('login', { title: 'Login', error: 'Invalid credentials', oldEmail: email });
+    if (result.rows.length > 0) {
+      const user = result.rows[0];
+      // Handle PHP's '$2y$' bcrypt prefix by replacing it with '$2a$' for compatibility with Node's bcryptjs
+      const userPassword = user.password.replace(/^\$2y\$/, '$2a$');
+      const isMatch = await bcrypt.compare(password, userPassword);
+
+      if (isMatch) {
+        req.session.userId = user.id;
+        req.session.user = { id: user.id, email: user.email, name: user.name, role: user.role };
+        return res.redirect('/');
+      }
     }
-    
-    req.session.userId = user.id;
-    req.session.user = { id: user.id, email: user.email, name: user.name, role: user.role };
-    res.redirect('/');
+    res.render('login', { title: 'Login', error: 'Invalid credentials', oldEmail: email });
   } catch (err) {
     console.error('Login error:', err);
     res.render('login', { title: 'Login', error: 'Server error', oldEmail: req.body.email || '' });
