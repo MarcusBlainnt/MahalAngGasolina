@@ -12,8 +12,20 @@ async function init() {
     connection = await pool.connect();
     
     // Create custom ENUM types
-    await connection.query(`CREATE TYPE IF NOT EXISTS fuel_type_enum AS ENUM ('Extra', 'Regular', 'Diesel')`);
-    await connection.query(`CREATE TYPE IF NOT EXISTS trip_status_enum AS ENUM ('Pending', 'Completed')`);
+    await connection.query(`
+      DO $$ BEGIN
+        CREATE TYPE fuel_type_enum AS ENUM ('Extra', 'Regular', 'Diesel');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `);
+    await connection.query(`
+      DO $$ BEGIN
+        CREATE TYPE trip_status_enum AS ENUM ('Pending', 'Completed');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `);
     
     // 1. users
     await connection.query(`
